@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decato - Contato e Catálogos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #138c8a; /* Fallback */
+            background-image: linear-gradient(to bottom, #4de6ed, #138c8a);
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f0f4f8;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #138c8a; /* Cor escura da paleta */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4de6ed; /* Cor clara da paleta */
+        }
+        .contact-options {
+            transition: all 0.3s ease-in-out;
+            max-height: 0;
+            overflow: hidden;
+        }
+        .contact-options.open {
+            max-height: 200px; /* Adjust as needed */
+        }
+        /* Carousel Styles */
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            height: 80px; /* Altura do carrossel */
+            border-radius: 0.5rem;
+            overflow: hidden;
+            padding: 10px;
+        }
+        .carousel-track {
+            display: flex;
+            height: 100%;
+            transition: transform 0.5s ease-in-out;
+            gap: 8px; /* Espaçamento entre os slides */
+        }
+        .carousel-slide {
+            min-width: calc(50% - 4px); /* Mostra 2 slides, ajustando pelo gap */
+            height: 100%;
+            position: relative;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(48, 58, 59, 0.2); /* Sombra para destacar */
+        }
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /*filter: brightness(0.6);*/
+        }
+        .carousel-slide .slide-text {
+            position: absolute;
+            top: 50%;
+            right: 1rem; /* Alinha à direita com um espaçamento */
+            transform: translateY(-50%); /* Centraliza verticalmente */
+            color: #fff; /* Cor branca para o texto */
+            font-size: 1rem; /* Ajuste de fonte para caber melhor */
+            font-weight: 700; /* Aumenta o peso para melhor contraste */
+            /*text-shadow: 1px 1px 2px #303a3b;*/ /* Sombra mais forte */
+            white-space: nowrap;
+            text-align: right;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="w-full max-w-md mx-auto bg-white shadow-2xl rounded-2xl p-6 my-8">
+        
+        <!-- Cabeçalho -->
+        <header class="text-center mb-8">
+            <img src="https://images.tcdn.com.br/img/img_prod/932868/1611352600_logodecato.svg" alt="Logo Decato" class="mx-auto w-48 h-auto mb-4">
+            <h1 class="text-2xl font-bold text-[#303a3b] mb-4">A solução completa para o seu negócio</h1>
+            
+            <!-- Carrossel de Categorias -->
+            <div class="carousel-container">
+                <div class="carousel-track">
+                    <div class="carousel-slide">
+                        <img src="papelaria.png" alt="Imagem de fundo Papelaria">
+                        <div class="slide-text">Papelaria</div>
+                    </div>
+                    <div class="carousel-slide">
+                        <img src="Limpeza.png" alt="Imagem de fundo Limpeza">
+                        <div class="slide-text">Limpeza</div>
+                    </div>
+                    <div class="carousel-slide">
+                        <img src="EPI.png" alt="Imagem de fundo EPI">
+                        <div class="slide-text">EPI</div>
+                    </div>
+                    <div class="carousel-slide">
+                        <img src="Coffee-Break.png" alt="Imagem de fundo Coffee Break">
+                        <div class="slide-text">Coffee Break</div>
+                    </div>
+                    <div class="carousel-slide">
+                        <img src="Iluminação.png" alt="Imagem de fundo Iluminação">
+                        <div class="slide-text">Iluminação</div>
+                    </div>
+                    <div class="carousel-slide">
+                        <img src="Informática.png" alt="Imagem de fundo Informática">
+                        <div class="slide-text">Informática</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Seção de Vendas com Cards -->
+        <section class="mb-6">
+            <h2 class="text-lg font-semibold text-[#303a3b] mb-4 text-center">Fale com nosso time de Vendas</h2>
+            <div class="grid grid-cols-2 gap-4">
+                
+                <!-- Card Vendedor 1 -->
+                <div class="seller-card text-center p-3 bg-[#E0F2F1] rounded-xl shadow-md cursor-pointer transition-transform transform hover:scale-105">
+                    <img src="vendedores/Yanca-Macena.jpg" alt="Foto da Vendedora Yanca" class="w-20 h-20 rounded-full mx-auto mb-2 border-2 border-[#138c8a]">
+                    <h3 class="font-semibold text-[#303a3b]">Yanca Macena</h3>
+                    <div class="contact-options mt-3 space-y-2">
+                        <a href="https://wa.me/5521990225516" target="_blank" class="flex items-center justify-center w-full bg-gradient-to-r from-[#138c8a] to-[#4de6ed] hover:opacity-90 text-white font-bold py-2 px-3 rounded-lg text-sm">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654z"/></svg>
+                            WhatsApp
+                        </a>
+                        <a href="mailto:vendas05@decato.com.br" class="flex items-center justify-center w-full bg-[#303a3b] hover:bg-opacity-80 text-white font-bold py-2 px-3 rounded-lg text-sm">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                            E-mail
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card Vendedor 2 -->
+                <div class="seller-card text-center p-3 bg-[#E0F2F1] rounded-xl shadow-md cursor-pointer transition-transform transform hover:scale-105">
+                    <img src="vendedores/Fernanda-Rodrigues.jpg" alt="Foto da Vendedora Fernanda" class="w-20 h-20 rounded-full mx-auto mb-2 border-2 border-[#138c8a]">
+                    <h3 class="font-semibold text-[#303a3b]">Fernanda Rodrigues</h3>
+                    <div class="contact-options mt-3 space-y-2">
+                        <a href="https://wa.me/5521973363156" target="_blank" class="flex items-center justify-center w-full bg-gradient-to-r from-[#138c8a] to-[#4de6ed] hover:opacity-90 text-white font-bold py-2 px-3 rounded-lg text-sm">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654z"/></svg>
+                            WhatsApp
+                        </a>
+                        <a href="mailto:vendas@decato.com.br" class="flex items-center justify-center w-full bg-[#303a3b] hover:bg-opacity-80 text-white font-bold py-2 px-3 rounded-lg text-sm">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                            E-mail
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card Vendedor 3 -->
+                <div class="seller-card text-center p-3 bg-[#E0F2F1] rounded-xl shadow-md cursor-pointer transition-transform transform hover:scale-105">
+                    <img src="vendedores/Carlos-Mattos.jpg" alt="Foto do Vendedor Carlos" class="w-20 h-20 rounded-full mx-auto mb-2 border-2 border-[#138c8a]">
+                    <h3 class="font-semibold text-[#303a3b]">Carlos Mattos</h3>
+                    <div class="contact-options mt-3 space-y-2">
+                        <a href="https://wa.me/5521968307193" target="_blank" class="flex items-center justify-center w-full bg-gradient-to-r from-[#138c8a] to-[#4de6ed] hover:opacity-90 text-white font-bold py-2 px-3 rounded-lg text-sm">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654z"/></svg>
+                            WhatsApp
+                        </a>
+                        <a href="mailto:vendas07@decato.com.br" class="flex items-center justify-center w-full bg-[#303a3b] hover:bg-opacity-80 text-white font-bold py-2 px-3 rounded-lg text-sm">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                            E-mail
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de Catálogos e Site -->
+        <section class="mb-6">
+            <h2 class="text-lg font-semibold text-[#303a3b] mb-3 text-center">Nossos Catálogos e Site</h2>
+            <div class="grid grid-cols-2 gap-3">
+                <a href="#" class="text-center bg-[#E0F2F1] hover:bg-[#B2DFDB] text-[#303a3b] font-semibold py-3 px-2 rounded-lg transition-transform transform hover:scale-105">Papelaria</a>
+                <a href="#" class="text-center bg-[#E0F2F1] hover:bg-[#B2DFDB] text-[#303a3b] font-semibold py-3 px-2 rounded-lg transition-transform transform hover:scale-105">Limpeza</a>
+                <a href="#" class="text-center bg-[#E0F2F1] hover:bg-[#B2DFDB] text-[#303a3b] font-semibold py-3 px-2 rounded-lg transition-transform transform hover:scale-105">EPI</a>
+                <a href="#" class="text-center bg-[#E0F2F1] hover:bg-[#B2DFDB] text-[#303a3b] font-semibold py-3 px-2 rounded-lg transition-transform transform hover:scale-105">Outros</a>
+            </div>
+            <div class="mt-3">
+                <a href="https://www.decato.com.br" target="_blank" class="flex items-center justify-center w-full bg-[#303a3b] hover:bg-opacity-80 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105">
+                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9V3m-9 9h18"></path></svg>
+                    <span>Acesse nosso Site Completo</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Seção Conecte-se -->
+        <section class="mb-6">
+            <h2 class="text-lg font-semibold text-[#303a3b] mb-3 text-center">Conecte-se com a gente</h2>
+            <div class="space-y-3">
+                <!-- Instagram -->
+                <a href="#" class="flex items-center justify-center w-full bg-gradient-to-r from-[#138c8a] to-[#4de6ed] hover:opacity-90 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105">
+                    <svg class="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.689-.072-4.948-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.441 1.441 1.441 1.441-.645 1.441-1.441-.645-1.44-1.441-1.44z"/></svg>
+                    <span>Siga nosso Instagram</span>
+                </a>
+                <!-- Nosso Endereço -->
+                <a href="#" class="flex items-center justify-center w-full bg-[#303a3b] hover:bg-opacity-80 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105">
+                    <svg class="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    <span>Nosso Endereço (Waze/Maps)</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Avaliação Google -->
+        <section>
+             <a href="#" class="flex items-center justify-center w-full bg-gradient-to-r from-[#138c8a] to-[#4de6ed] hover:opacity-90 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105 shadow-lg">
+                <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <span>Gostou? Avalie-nos no Google</span>
+            </a>
+        </section>
+
+        <!-- Rodapé -->
+        <footer class="text-center mt-8 pt-6 border-t border-gray-200">
+            <div class="text-xs text-gray-500 space-y-1">
+                <p class="font-semibold text-[#303a3b]">DECATO COMERCIO ATACADISTA EIRELI</p>
+                <p>CNPJ: 39.251.981/0001-85</p>
+                <p class="mt-2">Rua Montevidéu, Rio de Janeiro - RJ, 21020-290</p>
+                <p class="mt-4 text-gray-400">© 2025 Todos os direitos reservados</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Seller card interaction logic
+            const sellerCards = document.querySelectorAll('.seller-card');
+            sellerCards.forEach(card => {
+                card.addEventListener('click', (event) => {
+                    if (event.target.closest('a')) return;
+                    const options = card.querySelector('.contact-options');
+                    const isOpening = !options.classList.contains('open');
+                    document.querySelectorAll('.contact-options.open').forEach(openOpt => {
+                        openOpt.classList.remove('open');
+                    });
+                    if (isOpening) options.classList.add('open');
+                });
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('.seller-card')) {
+                    document.querySelectorAll('.contact-options.open').forEach(openOpt => {
+                        openOpt.classList.remove('open');
+                    });
+                }
+            });
+
+            // Carousel logic
+            const track = document.querySelector('.carousel-track');
+            const slides = Array.from(track.children);
+            const slideCount = slides.length;
+
+            // Clone slides for infinite loop effect
+            slides.forEach(slide => {
+                const clone = slide.cloneNode(true);
+                track.appendChild(clone);
+            });
+
+            let currentIndex = 0;
+            let intervalId = null;
+
+            function advance() {
+                track.style.transition = 'transform 0.5s ease-in-out';
+                currentIndex++;
+                const offset = currentIndex * (slides[0].offsetWidth + 8); // slide width + gap
+                track.style.transform = `translateX(-${offset}px)`;
+
+                // When it reaches the end of the cloned part, reset to the beginning silently
+                if (currentIndex >= slideCount) {
+                    // Use a 'transitionend' listener to jump back after the animation finishes
+                    track.addEventListener('transitionend', resetToStart, { once: true });
+                }
+            }
+            
+            function resetToStart() {
+                track.style.transition = 'none'; // No animation for the jump
+                currentIndex = 0;
+                track.style.transform = `translateX(0px)`;
+            }
+
+            // Start the carousel
+            intervalId = setInterval(advance, 3000);
+        });
+    </script>
+</body>
+</html>
