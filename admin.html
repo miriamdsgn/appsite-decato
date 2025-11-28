@@ -501,16 +501,108 @@
             preview.src = logoUrl || 'https://placehold.co/200x80/138c8a/ffffff?text=Logo';
         }
         
+        // Handle image upload and convert to base64
+        function handleImageUpload(input, targetId, callback) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            // Check file size (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                showToast('Imagem muito grande. Máximo 2MB.', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64 = e.target.result;
+                document.getElementById(targetId).value = base64;
+                if (callback) callback();
+                showToast('Imagem carregada!', 'success');
+            };
+            reader.onerror = function() {
+                showToast('Erro ao carregar imagem', 'error');
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Handle banner image upload
+        function handleBannerUpload(input, index) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            if (file.size > 2 * 1024 * 1024) {
+                showToast('Imagem muito grande. Máximo 2MB.', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64 = e.target.result;
+                siteData.banners[index].imagem = base64;
+                
+                // Update preview
+                const imgElement = document.getElementById(`banner-img-${index}`);
+                if (imgElement) imgElement.src = base64;
+                
+                const urlInput = document.getElementById(`banner-url-${index}`);
+                if (urlInput) urlInput.value = base64.substring(0, 50) + '... (base64)';
+                
+                showToast('Imagem do banner atualizada!', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Handle vendedor image upload
+        function handleVendedorUpload(input, index) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            if (file.size > 2 * 1024 * 1024) {
+                showToast('Imagem muito grande. Máximo 2MB.', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64 = e.target.result;
+                siteData.vendedores[index].foto = base64;
+                
+                // Update preview
+                const imgElement = document.getElementById(`vendedor-img-${index}`);
+                if (imgElement) imgElement.src = base64;
+                
+                const urlInput = document.getElementById(`vendedor-url-${index}`);
+                if (urlInput) urlInput.value = base64.substring(0, 50) + '... (base64)';
+                
+                showToast('Foto do vendedor atualizada!', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+        
         // Render Banners
         function renderBanners() {
             const container = document.getElementById('banners-list');
             container.innerHTML = siteData.banners?.map((banner, index) => `
                 <div class="item-card p-4 rounded-xl fade-in">
-                    <div class="aspect-video bg-black/20 rounded-lg mb-3 overflow-hidden">
-                        <img src="${banner.imagem}" alt="${banner.titulo}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/300x150/138c8a/ffffff?text=${encodeURIComponent(banner.titulo)}'">
+                    <div class="aspect-video bg-black/20 rounded-lg mb-3 overflow-hidden relative group">
+                        <img id="banner-img-${index}" src="${banner.imagem}" alt="${banner.titulo}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/300x150/138c8a/ffffff?text=${encodeURIComponent(banner.titulo)}'">
+                        <label class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                            <div class="text-white text-center">
+                                <svg class="w-8 h-8 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                <span class="text-xs">Trocar imagem</span>
+                            </div>
+                            <input type="file" class="upload-input" accept="image/*" onchange="handleBannerUpload(this, ${index})">
+                        </label>
                     </div>
                     <input type="text" value="${banner.titulo}" onchange="updateBanner(${index}, 'titulo', this.value)" class="input-field w-full px-3 py-2 rounded-lg text-white text-sm mb-2" placeholder="Título">
-                    <input type="text" value="${banner.imagem}" onchange="updateBanner(${index}, 'imagem', this.value)" class="input-field w-full px-3 py-2 rounded-lg text-white text-sm mb-3" placeholder="URL da Imagem">
+                    <div class="flex gap-2 mb-3">
+                        <input type="text" id="banner-url-${index}" value="${banner.imagem}" onchange="updateBanner(${index}, 'imagem', this.value)" class="input-field flex-1 px-3 py-2 rounded-lg text-white text-sm" placeholder="URL da Imagem">
+                        <label class="upload-zone px-3 py-2 rounded-lg flex items-center gap-1 text-xs text-gray-400 hover:text-white cursor-pointer whitespace-nowrap">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                            Upload
+                            <input type="file" class="upload-input" accept="image/*" onchange="handleBannerUpload(this, ${index})">
+                        </label>
+                    </div>
                     <button onclick="removeBanner(${index})" class="text-red-400 hover:text-red-300 text-sm flex items-center gap-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -527,18 +619,30 @@
             container.innerHTML = siteData.vendedores?.map((vendedor, index) => `
                 <div class="item-card p-4 rounded-xl fade-in">
                     <div class="flex items-center gap-3 mb-4">
-                        <img src="${vendedor.foto}" alt="${vendedor.nome}" class="w-16 h-16 rounded-full object-cover border-2 border-teal-500" onerror="this.src='https://placehold.co/100x100/138c8a/ffffff?text=${encodeURIComponent(vendedor.nome?.charAt(0) || 'V')}'">
+                        <div class="relative group">
+                            <img id="vendedor-img-${index}" src="${vendedor.foto}" alt="${vendedor.nome}" class="w-16 h-16 rounded-full object-cover border-2 border-teal-500" onerror="this.src='https://placehold.co/100x100/138c8a/ffffff?text=${encodeURIComponent(vendedor.nome?.charAt(0) || 'V')}'">
+                            <label class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                <input type="file" class="upload-input" accept="image/*" onchange="handleVendedorUpload(this, ${index})">
+                            </label>
+                        </div>
                         <div class="flex-1">
                             <input type="text" value="${vendedor.nome}" onchange="updateVendedor(${index}, 'nome', this.value)" class="input-field w-full px-3 py-2 rounded-lg text-white text-sm" placeholder="Nome">
                         </div>
                     </div>
                     <div class="space-y-2">
-                        <input type="text" value="${vendedor.foto}" onchange="updateVendedor(${index}, 'foto', this.value)" class="input-field w-full px-3 py-2 rounded-lg text-white text-sm" placeholder="URL da Foto">
                         <div class="flex gap-2">
+                            <input type="text" id="vendedor-url-${index}" value="${vendedor.foto}" onchange="updateVendedor(${index}, 'foto', this.value)" class="input-field flex-1 px-3 py-2 rounded-lg text-white text-sm" placeholder="URL da Foto">
+                            <label class="upload-zone px-3 py-2 rounded-lg flex items-center gap-1 text-xs text-gray-400 hover:text-white cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                <input type="file" class="upload-input" accept="image/*" onchange="handleVendedorUpload(this, ${index})">
+                            </label>
+                        </div>
+                        <div class="flex gap-2 items-center">
                             <span class="text-gray-400 text-xs w-20">WhatsApp:</span>
                             <input type="text" value="${vendedor.whatsapp}" onchange="updateVendedor(${index}, 'whatsapp', this.value)" class="input-field flex-1 px-3 py-2 rounded-lg text-white text-sm" placeholder="5521999999999">
                         </div>
-                        <div class="flex gap-2">
+                        <div class="flex gap-2 items-center">
                             <span class="text-gray-400 text-xs w-20">E-mail:</span>
                             <input type="text" value="${vendedor.email}" onchange="updateVendedor(${index}, 'email', this.value)" class="input-field flex-1 px-3 py-2 rounded-lg text-white text-sm" placeholder="email@empresa.com">
                         </div>
