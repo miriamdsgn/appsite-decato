@@ -43,6 +43,7 @@
 - [ ] Endereço: Rua Montevidéu, Rio de Janeiro - RJ, 21020-290
 - [ ] Slogan: A solução completa para o seu negócio
 - [ ] Logo: URL do logo
+- [ ] Favicon: Upload do favicon (32x32 ou 64x64px, .ico, .png ou .svg)
 - [ ] Site: https://www.decato.com.br
 
 ### ✅ Banners (6)
