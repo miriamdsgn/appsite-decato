@@ -1,11 +1,7 @@
-import { put } from '@vercel/blob';
-
-export const config = {
-    runtime: 'edge',
-};
+// API de upload usando Blob
+// Usando Node.js runtime para melhor compatibilidade com Blob
 
 export default async function handler(request) {
-    // CORS headers
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -13,7 +9,6 @@ export default async function handler(request) {
         'Content-Type': 'application/json',
     };
 
-    // Handle preflight
     if (request.method === 'OPTIONS') {
         return new Response(null, { headers });
     }
@@ -26,6 +21,13 @@ export default async function handler(request) {
     }
 
     try {
+        if (!process.env.BLOB_READ_WRITE_TOKEN) {
+            return new Response(
+                JSON.stringify({ success: false, error: 'Blob não configurado' }),
+                { status: 500, headers }
+            );
+        }
+
         const formData = await request.formData();
         const file = formData.get('file');
         const folder = formData.get('folder') || 'images';
@@ -43,15 +45,37 @@ export default async function handler(request) {
         const extension = file.name.split('.').pop();
         const filename = `${folder}/${timestamp}-${randomStr}.${extension}`;
 
-        // Upload para Vercel Blob
-        const blob = await put(filename, file, {
-            access: 'public',
+        // Converter file para base64 para enviar via API (compatível com Edge)
+        const arrayBuffer = await file.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
+        const base64 = btoa(String.fromCharCode(...uint8Array));
+
+        // Upload para Vercel Blob usando API REST
+        const response = await fetch('https://blob.vercel-storage.com', {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                pathname: filename,
+                data: base64,
+                contentType: file.type || 'application/octet-stream',
+                access: 'public',
+            }),
         });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Erro no upload: ${errorText}`);
+        }
+
+        const result = await response.json();
 
         return new Response(
             JSON.stringify({ 
                 success: true, 
-                url: blob.url,
+                url: result.url,
                 path: filename 
             }),
             { headers }
