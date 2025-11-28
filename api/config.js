@@ -1,11 +1,14 @@
+// API de configurações - Tenta usar KV, se não disponível usa Blob
 import { kv } from '@vercel/kv';
+import { put, head } from '@vercel/blob';
 
 export const config = {
     runtime: 'edge',
 };
 
+const CONFIG_FILE = 'site-config.json';
+
 export default async function handler(request) {
-    // CORS headers
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -13,7 +16,6 @@ export default async function handler(request) {
         'Content-Type': 'application/json',
     };
 
-    // Handle preflight
     if (request.method === 'OPTIONS') {
         return new Response(null, { headers });
     }
@@ -21,9 +23,37 @@ export default async function handler(request) {
     try {
         // GET - Carregar configurações
         if (request.method === 'GET') {
-            const config = await kv.get('site_config');
+            try {
+                // Tentar usar KV primeiro
+                const config = await kv.get('site_config');
+                if (config) {
+                    return new Response(
+                        JSON.stringify({ success: true, data: config }),
+                        { headers }
+                    );
+                }
+            } catch (kvError) {
+                // KV não disponível, tentar Blob
+                console.log('KV não disponível, usando Blob');
+            }
+
+            // Fallback: usar Blob
+            try {
+                const blob = await head(CONFIG_FILE);
+                if (blob) {
+                    const response = await fetch(blob.url);
+                    const config = await response.json();
+                    return new Response(
+                        JSON.stringify({ success: true, data: config }),
+                        { headers }
+                    );
+                }
+            } catch (blobError) {
+                // Arquivo não existe
+            }
+
             return new Response(
-                JSON.stringify({ success: true, data: config || null }),
+                JSON.stringify({ success: true, data: null }),
                 { headers }
             );
         }
@@ -31,11 +61,27 @@ export default async function handler(request) {
         // POST - Salvar configurações
         if (request.method === 'POST') {
             const body = await request.json();
-            await kv.set('site_config', body.config);
-            return new Response(
-                JSON.stringify({ success: true, message: 'Configurações salvas!' }),
-                { headers }
-            );
+            
+            try {
+                // Tentar salvar no KV primeiro
+                await kv.set('site_config', body.config);
+                return new Response(
+                    JSON.stringify({ success: true, message: 'Configurações salvas no KV!' }),
+                    { headers }
+                );
+            } catch (kvError) {
+                // KV não disponível, usar Blob
+                console.log('KV não disponível, salvando no Blob');
+                const configJson = JSON.stringify(body.config);
+                const blob = await put(CONFIG_FILE, configJson, {
+                    access: 'public',
+                    contentType: 'application/json',
+                });
+                return new Response(
+                    JSON.stringify({ success: true, message: 'Configurações salvas no Blob!', url: blob.url }),
+                    { headers }
+                );
+            }
         }
 
         return new Response(
