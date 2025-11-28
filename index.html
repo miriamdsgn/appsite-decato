@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Decato - Contato e Catálogos</title>
+    <link rel="icon" type="image/x-icon" id="site-favicon" href="">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="vercel-service.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -225,6 +226,20 @@
                 document.getElementById('footer-nome').textContent = siteData.empresa.nome;
                 document.getElementById('footer-cnpj').textContent = `CNPJ: ${siteData.empresa.cnpj}`;
                 document.getElementById('footer-endereco').textContent = siteData.empresa.endereco;
+                
+                // Favicon
+                if (siteData.empresa.favicon) {
+                    const favicon = document.getElementById('site-favicon');
+                    favicon.href = siteData.empresa.favicon;
+                    // Também atualizar apple-touch-icon se necessário
+                    let appleIcon = document.querySelector('link[rel="apple-touch-icon"]');
+                    if (!appleIcon) {
+                        appleIcon = document.createElement('link');
+                        appleIcon.rel = 'apple-touch-icon';
+                        document.head.appendChild(appleIcon);
+                    }
+                    appleIcon.href = siteData.empresa.favicon;
+                }
             }
             
             // Redes Sociais

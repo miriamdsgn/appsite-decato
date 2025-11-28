@@ -470,7 +470,9 @@
             document.getElementById('empresa-slogan').value = siteData.empresa?.slogan || '';
             document.getElementById('empresa-logo').value = siteData.empresa?.logo || '';
             document.getElementById('empresa-siteUrl').value = siteData.empresa?.siteUrl || '';
+            document.getElementById('empresa-favicon').value = siteData.empresa?.favicon || '';
             updateLogoPreview();
+            updateFaviconPreview();
             
             // Cores
             if (siteData.cores) {
@@ -533,6 +535,13 @@
             preview.src = logoUrl || 'https://placehold.co/200x80/138c8a/ffffff?text=Logo';
         }
         
+        // Update favicon preview
+        function updateFaviconPreview() {
+            const faviconUrl = document.getElementById('empresa-favicon').value;
+            const preview = document.getElementById('favicon-preview');
+            preview.src = faviconUrl || 'https://placehold.co/64x64/138c8a/ffffff?text=F';
+        }
+        
         // Handle image upload (with Vercel support)
         async function handleImageUpload(input, targetId, callback) {
             const file = input.files[0];
@@ -544,10 +553,15 @@
                 return;
             }
             
+            // Determinar pasta baseado no targetId
+            let folder = 'images';
+            if (targetId.includes('logo')) folder = 'logos';
+            else if (targetId.includes('favicon')) folder = 'favicons';
+            
             showToast('Fazendo upload...', 'info');
             
             try {
-                const result = await VercelService.uploadImage(file, 'logos');
+                const result = await VercelService.uploadImage(file, folder);
                 document.getElementById(targetId).value = result.url;
                 if (callback) callback();
                 showToast(result.local ? 'Imagem carregada!' : 'Imagem enviada para Vercel! ☁️', 'success');
@@ -793,6 +807,7 @@
                 endereco: document.getElementById('empresa-endereco').value,
                 slogan: document.getElementById('empresa-slogan').value,
                 logo: document.getElementById('empresa-logo').value,
+                favicon: document.getElementById('empresa-favicon').value,
                 siteUrl: document.getElementById('empresa-siteUrl').value
             };
             
@@ -894,6 +909,7 @@
         
         // Logo preview update on input
         document.getElementById('empresa-logo')?.addEventListener('input', updateLogoPreview);
+        document.getElementById('empresa-favicon')?.addEventListener('input', updateFaviconPreview);
         
         // Initialize
         loadData();
