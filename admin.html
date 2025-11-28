@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Admin - Decato AppSite</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="vercel-service.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -153,7 +154,10 @@
                 </div>
                 <div>
                     <h1 class="text-2xl font-bold">Painel Administrativo</h1>
-                    <p class="text-gray-400 text-sm">Gerencie o conteúdo do AppSite Decato</p>
+                    <div class="flex items-center gap-3">
+                        <p class="text-gray-400 text-sm">Gerencie o conteúdo do AppSite Decato</p>
+                        <div id="connection-status"></div>
+                    </div>
                 </div>
             </div>
             <div class="flex gap-3">
@@ -413,7 +417,22 @@
         // Carregar dados
         async function loadData() {
             try {
-                // Tenta carregar do localStorage primeiro
+                // Tenta carregar da Vercel primeiro
+                if (window.VercelService) {
+                    const isConfigured = await VercelService.isConfigured();
+                    if (isConfigured) {
+                        const cloudData = await VercelService.loadSiteConfig();
+                        if (cloudData) {
+                            siteData = cloudData;
+                            showToast('Dados carregados da Vercel ☁️', 'success');
+                            populateForm();
+                            updateConnectionStatus(true);
+                            return;
+                        }
+                    }
+                }
+                
+                // Fallback: localStorage
                 const localData = localStorage.getItem('decato_site_data');
                 if (localData) {
                     siteData = JSON.parse(localData);
@@ -423,9 +442,22 @@
                     siteData = await response.json();
                 }
                 populateForm();
+                updateConnectionStatus(false);
             } catch (error) {
                 console.error('Erro ao carregar dados:', error);
                 showToast('Erro ao carregar dados', 'error');
+            }
+        }
+        
+        // Atualizar status de conexão
+        function updateConnectionStatus(connected) {
+            const statusEl = document.getElementById('connection-status');
+            if (statusEl) {
+                if (connected) {
+                    statusEl.innerHTML = '<span class="flex items-center gap-1 text-green-400 text-xs"><span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span> Conectado à Vercel</span>';
+                } else {
+                    statusEl.innerHTML = '<span class="flex items-center gap-1 text-yellow-400 text-xs"><span class="w-2 h-2 bg-yellow-400 rounded-full"></span> Modo local</span>';
+                }
             }
         }
         
@@ -501,82 +533,85 @@
             preview.src = logoUrl || 'https://placehold.co/200x80/138c8a/ffffff?text=Logo';
         }
         
-        // Handle image upload and convert to base64
-        function handleImageUpload(input, targetId, callback) {
+        // Handle image upload (with Vercel support)
+        async function handleImageUpload(input, targetId, callback) {
             const file = input.files[0];
             if (!file) return;
             
-            // Check file size (max 2MB)
-            if (file.size > 2 * 1024 * 1024) {
-                showToast('Imagem muito grande. Máximo 2MB.', 'error');
+            // Check file size (max 4.5MB for Vercel Blob)
+            if (file.size > 4.5 * 1024 * 1024) {
+                showToast('Imagem muito grande. Máximo 4.5MB.', 'error');
                 return;
             }
             
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64 = e.target.result;
-                document.getElementById(targetId).value = base64;
+            showToast('Fazendo upload...', 'info');
+            
+            try {
+                const result = await VercelService.uploadImage(file, 'logos');
+                document.getElementById(targetId).value = result.url;
                 if (callback) callback();
-                showToast('Imagem carregada!', 'success');
-            };
-            reader.onerror = function() {
+                showToast(result.local ? 'Imagem carregada!' : 'Imagem enviada para Vercel! ☁️', 'success');
+            } catch (error) {
                 showToast('Erro ao carregar imagem', 'error');
-            };
-            reader.readAsDataURL(file);
+            }
         }
         
         // Handle banner image upload
-        function handleBannerUpload(input, index) {
+        async function handleBannerUpload(input, index) {
             const file = input.files[0];
             if (!file) return;
             
-            if (file.size > 2 * 1024 * 1024) {
-                showToast('Imagem muito grande. Máximo 2MB.', 'error');
+            if (file.size > 4.5 * 1024 * 1024) {
+                showToast('Imagem muito grande. Máximo 4.5MB.', 'error');
                 return;
             }
             
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64 = e.target.result;
-                siteData.banners[index].imagem = base64;
+            showToast('Fazendo upload do banner...', 'info');
+            
+            try {
+                const result = await VercelService.uploadImage(file, 'banners');
+                siteData.banners[index].imagem = result.url;
                 
                 // Update preview
                 const imgElement = document.getElementById(`banner-img-${index}`);
-                if (imgElement) imgElement.src = base64;
+                if (imgElement) imgElement.src = result.url;
                 
                 const urlInput = document.getElementById(`banner-url-${index}`);
-                if (urlInput) urlInput.value = base64.substring(0, 50) + '... (base64)';
+                if (urlInput) urlInput.value = result.local ? result.url.substring(0, 50) + '...' : result.url;
                 
-                showToast('Imagem do banner atualizada!', 'success');
-            };
-            reader.readAsDataURL(file);
+                showToast(result.local ? 'Banner atualizado!' : 'Banner enviado para Vercel! ☁️', 'success');
+            } catch (error) {
+                showToast('Erro ao fazer upload do banner', 'error');
+            }
         }
         
         // Handle vendedor image upload
-        function handleVendedorUpload(input, index) {
+        async function handleVendedorUpload(input, index) {
             const file = input.files[0];
             if (!file) return;
             
-            if (file.size > 2 * 1024 * 1024) {
-                showToast('Imagem muito grande. Máximo 2MB.', 'error');
+            if (file.size > 4.5 * 1024 * 1024) {
+                showToast('Imagem muito grande. Máximo 4.5MB.', 'error');
                 return;
             }
             
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64 = e.target.result;
-                siteData.vendedores[index].foto = base64;
+            showToast('Fazendo upload da foto...', 'info');
+            
+            try {
+                const result = await VercelService.uploadImage(file, 'vendedores');
+                siteData.vendedores[index].foto = result.url;
                 
                 // Update preview
                 const imgElement = document.getElementById(`vendedor-img-${index}`);
-                if (imgElement) imgElement.src = base64;
+                if (imgElement) imgElement.src = result.url;
                 
                 const urlInput = document.getElementById(`vendedor-url-${index}`);
-                if (urlInput) urlInput.value = base64.substring(0, 50) + '... (base64)';
+                if (urlInput) urlInput.value = result.local ? result.url.substring(0, 50) + '...' : result.url;
                 
-                showToast('Foto do vendedor atualizada!', 'success');
-            };
-            reader.readAsDataURL(file);
+                showToast(result.local ? 'Foto atualizada!' : 'Foto enviada para Vercel! ☁️', 'success');
+            } catch (error) {
+                showToast('Erro ao fazer upload da foto', 'error');
+            }
         }
         
         // Render Banners
@@ -776,10 +811,41 @@
         }
         
         // Save data
-        function saveData() {
+        async function saveData() {
             collectFormData();
-            localStorage.setItem('decato_site_data', JSON.stringify(siteData));
-            showToast('Alterações salvas com sucesso!', 'success');
+            
+            const saveBtn = document.querySelector('[onclick="saveData()"]');
+            if (saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" class="opacity-75"></path></svg> Salvando...';
+            }
+            
+            try {
+                if (window.VercelService) {
+                    const result = await VercelService.saveSiteConfig(siteData);
+                    if (result.success) {
+                        showToast('Salvo na Vercel com sucesso! ☁️', 'success');
+                        updateConnectionStatus(true);
+                    } else if (result.local) {
+                        showToast('Salvo localmente (APIs não disponíveis)', 'info');
+                        updateConnectionStatus(false);
+                    } else {
+                        throw new Error('Erro ao salvar');
+                    }
+                } else {
+                    localStorage.setItem('decato_site_data', JSON.stringify(siteData));
+                    showToast('Salvo localmente', 'info');
+                }
+            } catch (error) {
+                console.error('Erro ao salvar:', error);
+                localStorage.setItem('decato_site_data', JSON.stringify(siteData));
+                showToast('Salvo localmente (erro na nuvem)', 'error');
+            }
+            
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Salvar Alterações';
+            }
         }
         
         // Export data

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Decato - Contato e Catálogos</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="vercel-service.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -169,7 +170,21 @@
         // Carregar dados
         async function loadSiteData() {
             try {
-                // Tenta carregar do localStorage primeiro (dados do admin)
+                // Tenta carregar da Vercel primeiro
+                if (window.VercelService) {
+                    const isConfigured = await VercelService.isConfigured();
+                    if (isConfigured) {
+                        const cloudData = await VercelService.loadSiteConfig();
+                        if (cloudData) {
+                            siteData = cloudData;
+                            applySiteData();
+                            console.log('Dados carregados da Vercel');
+                            return;
+                        }
+                    }
+                }
+                
+                // Fallback: localStorage
                 const localData = localStorage.getItem('decato_site_data');
                 if (localData) {
                     siteData = JSON.parse(localData);
@@ -181,6 +196,14 @@
                 applySiteData();
             } catch (error) {
                 console.error('Erro ao carregar dados:', error);
+                // Último fallback: tenta carregar do JSON
+                try {
+                    const response = await fetch('data.json');
+                    siteData = await response.json();
+                    applySiteData();
+                } catch (e) {
+                    console.error('Erro fatal ao carregar dados');
+                }
             }
         }
         
