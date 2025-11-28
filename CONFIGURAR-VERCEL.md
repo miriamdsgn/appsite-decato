@@ -15,40 +15,24 @@ git push origin main
 
 ---
 
-## Passo 2: Criar o KV Database (para configurações)
+## Passo 2: Criar o Blob Storage (para imagens e configurações)
 
-**O KV agora está no Marketplace!** Siga estes passos:
+**✅ Usamos apenas Blob para tudo!** (imagens + configurações)
 
-1. Acesse seu projeto na [Vercel Dashboard](https://vercel.com/dashboard)
-2. Clique no seu projeto **appsite-decato**
-3. Vá em **Storage** (no menu lateral)
-4. Clique em **"Marketplace Database Providers"** ou procure por **"KV"**
-5. Ou acesse diretamente: [Vercel Marketplace - KV](https://vercel.com/marketplace)
-6. Procure por **"Vercel KV"** e clique em **"Add Integration"**
-7. Selecione seu projeto **appsite-decato**
-8. Preencha:
-   - **Name**: `decato-config`
-   - **Region**: São Paulo (gru1)
-9. Clique em **Create** e depois **Connect**
-
-**✅ BOA NOTÍCIA:** O código já está preparado para funcionar **sem KV**! 
-
-Se você não encontrar o KV no Marketplace, **não precisa se preocupar** - o sistema automaticamente usa o Blob para armazenar as configurações também. Só precisa ter o Blob configurado (que você já tem!).
-
----
-
-## Passo 3: Criar o Blob Storage (para imagens)
-
-1. Ainda em **Storage**, clique em **Create Database**
+1. Em **Storage**, clique em **Create Database**
 2. Selecione **Blob** (Vercel Blob)
 3. Preencha:
-   - **Name**: `decato-images`
+   - **Name**: `decato-storage` (ou qualquer nome)
 4. Clique em **Create**
 5. Na tela de confirmação, clique em **Connect**
 
+**Pronto!** O Blob vai armazenar:
+- ✅ Imagens (banners, fotos, logo)
+- ✅ Configurações do site (JSON)
+
 ---
 
-## Passo 4: Redeploy
+## Passo 3: Redeploy
 
 Depois de conectar os storages, faça um redeploy:
 
@@ -72,7 +56,6 @@ Agora você pode:
 
 | Serviço | Limite Gratuito |
 |---------|-----------------|
-| **Vercel KV** | 30MB de dados |
 | **Vercel Blob** | 1GB de storage |
 | **Bandwidth** | 100GB/mês |
 

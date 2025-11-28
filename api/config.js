@@ -1,5 +1,4 @@
-// API de configurações - Tenta usar KV, se não disponível usa Blob
-import { kv } from '@vercel/kv';
+// API de configurações usando apenas Blob
 import { put, head } from '@vercel/blob';
 
 export const config = {
@@ -24,21 +23,6 @@ export default async function handler(request) {
         // GET - Carregar configurações
         if (request.method === 'GET') {
             try {
-                // Tentar usar KV primeiro
-                const config = await kv.get('site_config');
-                if (config) {
-                    return new Response(
-                        JSON.stringify({ success: true, data: config }),
-                        { headers }
-                    );
-                }
-            } catch (kvError) {
-                // KV não disponível, tentar Blob
-                console.log('KV não disponível, usando Blob');
-            }
-
-            // Fallback: usar Blob
-            try {
                 const blob = await head(CONFIG_FILE);
                 if (blob) {
                     const response = await fetch(blob.url);
@@ -48,8 +32,8 @@ export default async function handler(request) {
                         { headers }
                     );
                 }
-            } catch (blobError) {
-                // Arquivo não existe
+            } catch (error) {
+                // Arquivo não existe ainda
             }
 
             return new Response(
@@ -61,27 +45,17 @@ export default async function handler(request) {
         // POST - Salvar configurações
         if (request.method === 'POST') {
             const body = await request.json();
+            const configJson = JSON.stringify(body.config);
             
-            try {
-                // Tentar salvar no KV primeiro
-                await kv.set('site_config', body.config);
-                return new Response(
-                    JSON.stringify({ success: true, message: 'Configurações salvas no KV!' }),
-                    { headers }
-                );
-            } catch (kvError) {
-                // KV não disponível, usar Blob
-                console.log('KV não disponível, salvando no Blob');
-                const configJson = JSON.stringify(body.config);
-                const blob = await put(CONFIG_FILE, configJson, {
-                    access: 'public',
-                    contentType: 'application/json',
-                });
-                return new Response(
-                    JSON.stringify({ success: true, message: 'Configurações salvas no Blob!', url: blob.url }),
-                    { headers }
-                );
-            }
+            const blob = await put(CONFIG_FILE, configJson, {
+                access: 'public',
+                contentType: 'application/json',
+            });
+
+            return new Response(
+                JSON.stringify({ success: true, message: 'Configurações salvas!', url: blob.url }),
+                { headers }
+            );
         }
 
         return new Response(
