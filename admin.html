@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - Decato AppSite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'DM Sans', sans-serif; }
+        
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .input-field {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #14b8a6;
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2);
+            outline: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(20, 184, 166, 0.3);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(239, 68, 68, 0.3);
+        }
+        
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn.active {
+            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+            color: white;
+        }
+        
+        .tab-btn:not(.active):hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .section-title {
+            background: linear-gradient(90deg, #14b8a6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .item-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .item-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(20, 184, 166, 0.3);
+        }
+        
+        .preview-badge {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        .upload-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-zone:hover {
+            border-color: #14b8a6;
+            background: rgba(20, 184, 166, 0.1);
+        }
+        
+        .upload-zone.dragover {
+            border-color: #14b8a6;
+            background: rgba(20, 184, 166, 0.2);
+        }
+        
+        .upload-input {
+            display: none;
+        }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #14b8a6; border-radius: 10px; }
+        
+        .toast {
+            animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="text-white p-4 md:p-8">
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+    
+    <!-- Header -->
+    <header class="max-w-6xl mx-auto mb-8">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold">Painel Administrativo</h1>
+                    <p class="text-gray-400 text-sm">Gerencie o conteúdo do AppSite Decato</p>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <a href="index.html" target="_blank" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition flex items-center gap-2 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                    Ver Site
+                </a>
+                <button onclick="exportData()" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition flex items-center gap-2 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    Exportar JSON
+                </button>
+                <button onclick="saveData()" class="btn-primary px-6 py-2 rounded-lg font-semibold flex items-center gap-2 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Salvar Alterações
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Navigation Tabs -->
+    <nav class="max-w-6xl mx-auto mb-8">
+        <div class="glass-card rounded-2xl p-2 flex flex-wrap gap-2">
+            <button class="tab-btn active px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2" data-tab="empresa">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                Empresa
+            </button>
+            <button class="tab-btn px-4 py-2 rounded-xl text-sm font-medium text-gray-400 flex items-center gap-2" data-tab="banners">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                Banners
+            </button>
+            <button class="tab-btn px-4 py-2 rounded-xl text-sm font-medium text-gray-400 flex items-center gap-2" data-tab="vendedores">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                Vendedores
+            </button>
+            <button class="tab-btn px-4 py-2 rounded-xl text-sm font-medium text-gray-400 flex items-center gap-2" data-tab="catalogos">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                Catálogos
+            </button>
+            <button class="tab-btn px-4 py-2 rounded-xl text-sm font-medium text-gray-400 flex items-center gap-2" data-tab="redes">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                Redes Sociais
+            </button>
+            <button class="tab-btn px-4 py-2 rounded-xl text-sm font-medium text-gray-400 flex items-center gap-2" data-tab="cores">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+                Cores
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto">
+        <!-- Tab: Empresa -->
+        <section id="tab-empresa" class="tab-content fade-in">
+            <div class="glass-card rounded-2xl p-6">
+                <h2 class="section-title text-xl font-bold mb-6">Informações da Empresa</h2>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-2">Nome da Empresa</label>
+                        <input type="text" id="empresa-nome" class="input-field w-full px-4 py-3 rounded-xl text-white">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-2">CNPJ</label>
+                        <input type="text" id="empresa-cnpj" class="input-field w-full px-4 py-3 rounded-xl text-white">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-gray-400 text-sm mb-2">Endereço</label>
+                        <input type="text" id="empresa-endereco" class="input-field w-full px-4 py-3 rounded-xl text-white">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-gray-400 text-sm mb-2">Slogan</label>
+                        <input type="text" id="empresa-slogan" class="input-field w-full px-4 py-3 rounded-xl text-white">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-2">Logo</label>
+                        <div class="flex gap-3">
+                            <input type="text" id="empresa-logo" class="input-field flex-1 px-4 py-3 rounded-xl text-white" placeholder="URL ou faça upload">
+                            <label class="upload-zone px-4 py-3 rounded-xl flex items-center gap-2 text-sm text-gray-400 hover:text-white">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                Upload
+                                <input type="file" class="upload-input" accept="image/*" onchange="handleImageUpload(this, 'empresa-logo', updateLogoPreview)">
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-2">URL do Site Principal</label>
+                        <input type="text" id="empresa-siteUrl" class="input-field w-full px-4 py-3 rounded-xl text-white">
+                    </div>
+                </div>
+                
+                <!-- Preview do Logo -->
+                <div class="mt-6 p-4 bg-white/5 rounded-xl">
+                    <p class="text-gray-400 text-sm mb-3">Preview do Logo:</p>
+                    <img id="logo-preview" src="" alt="Logo Preview" class="max-h-20 bg-white rounded-lg p-2">
+                </div>
+            </div>
+        </section>
+        
+        <!-- Tab: Banners -->
+        <section id="tab-banners" class="tab-content hidden">
+            <div class="glass-card rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="section-title text-xl font-bold">Banners do Carrossel</h2>
+                    <button onclick="addBanner()" class="btn-primary px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Adicionar Banner
+                    </button>
+                </div>
+                
+                <div id="banners-list" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Banners serão renderizados aqui -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Tab: Vendedores -->
+        <section id="tab-vendedores" class="tab-content hidden">
+            <div class="glass-card rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="section-title text-xl font-bold">Time de Vendas</h2>
+                    <button onclick="addVendedor()" class="btn-primary px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Adicionar Vendedor
+                    </button>
+                </div>
+                
+                <div id="vendedores-list" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Vendedores serão renderizados aqui -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Tab: Catálogos -->
+        <section id="tab-catalogos" class="tab-content hidden">
+            <div class="glass-card rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="section-title text-xl font-bold">Catálogos</h2>
+                    <button onclick="addCatalogo()" class="btn-primary px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Adicionar Catálogo
+                    </button>
+                </div>
+                
+                <div id="catalogos-list" class="grid md:grid-cols-2 gap-4">
+                    <!-- Catálogos serão renderizados aqui -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Tab: Redes Sociais -->
+        <section id="tab-redes" class="tab-content hidden">
+            <div class="glass-card rounded-2xl p-6">
+                <h2 class="section-title text-xl font-bold mb-6">Redes Sociais e Links</h2>
+                
+                <div class="space-y-6">
+                    <div class="item-card p-4 rounded-xl">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"/></svg>
+                            </div>
+                            <span class="font-medium">Instagram</span>
+                        </div>
+                        <input type="text" id="redes-instagram" class="input-field w-full px-4 py-3 rounded-xl text-white" placeholder="https://instagram.com/seuuser">
+                    </div>
+                    
+                    <div class="item-card p-4 rounded-xl">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                            </div>
+                            <span class="font-medium">Link do Endereço (Maps/Waze)</span>
+                        </div>
+                        <input type="text" id="redes-endereco" class="input-field w-full px-4 py-3 rounded-xl text-white" placeholder="https://maps.google.com/...">
+                    </div>
+                    
+                    <div class="item-card p-4 rounded-xl">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            </div>
+                            <span class="font-medium">Link Avaliação Google</span>
+                        </div>
+                        <input type="text" id="redes-avaliacaoGoogle" class="input-field w-full px-4 py-3 rounded-xl text-white" placeholder="https://g.page/...">
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Tab: Cores -->
+        <section id="tab-cores" class="tab-content hidden">
+            <div class="glass-card rounded-2xl p-6">
+                <h2 class="section-title text-xl font-bold mb-6">Paleta de Cores</h2>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="item-card p-4 rounded-xl">
+                        <label class="block text-gray-400 text-sm mb-3">Cor Primária</label>
+                        <div class="flex items-center gap-3">
+                            <input type="color" id="cores-primaria" class="w-12 h-12 rounded-lg cursor-pointer border-0">
+                            <input type="text" id="cores-primaria-hex" class="input-field flex-1 px-3 py-2 rounded-lg text-white text-sm">
+                        </div>
+                    </div>
+                    
+                    <div class="item-card p-4 rounded-xl">
+                        <label class="block text-gray-400 text-sm mb-3">Cor Secundária</label>
+                        <div class="flex items-center gap-3">
+                            <input type="color" id="cores-secundaria" class="w-12 h-12 rounded-lg cursor-pointer border-0">
+                            <input type="text" id="cores-secundaria-hex" class="input-field flex-1 px-3 py-2 rounded-lg text-white text-sm">
+                        </div>
+                    </div>
+                    
+                    <div class="item-card p-4 rounded-xl">
+                        <label class="block text-gray-400 text-sm mb-3">Cor do Texto</label>
+                        <div class="flex items-center gap-3">
+                            <input type="color" id="cores-texto" class="w-12 h-12 rounded-lg cursor-pointer border-0">
+                            <input type="text" id="cores-texto-hex" class="input-field flex-1 px-3 py-2 rounded-lg text-white text-sm">
+                        </div>
+                    </div>
+                    
+                    <div class="item-card p-4 rounded-xl">
+                        <label class="block text-gray-400 text-sm mb-3">Cor de Fundo</label>
+                        <div class="flex items-center gap-3">
+                            <input type="color" id="cores-fundo" class="w-12 h-12 rounded-lg cursor-pointer border-0">
+                            <input type="text" id="cores-fundo-hex" class="input-field flex-1 px-3 py-2 rounded-lg text-white text-sm">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Preview das cores -->
+                <div class="mt-8 p-6 rounded-xl" id="cores-preview" style="background: linear-gradient(to bottom, var(--cor-secundaria), var(--cor-primaria));">
+                    <div class="bg-white rounded-xl p-4 max-w-xs mx-auto">
+                        <h3 class="font-bold mb-2" style="color: var(--cor-texto);">Preview</h3>
+                        <div class="p-3 rounded-lg" style="background: var(--cor-fundo);">
+                            <p class="text-sm" style="color: var(--cor-texto);">Visualize como ficará o site com essas cores.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <script>
+        let siteData = {};
+        
+        // Carregar dados
+        async function loadData() {
+            try {
+                // Tenta carregar do localStorage primeiro
+                const localData = localStorage.getItem('decato_site_data');
+                if (localData) {
+                    siteData = JSON.parse(localData);
+                } else {
+                    // Se não houver no localStorage, carrega do arquivo JSON
+                    const response = await fetch('data.json');
+                    siteData = await response.json();
+                }
+                populateForm();
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+                showToast('Erro ao carregar dados', 'error');
+            }
+        }
+        
+        // Preencher formulário
+        function populateForm() {
+            // Empresa
+            document.getElementById('empresa-nome').value = siteData.empresa?.nome || '';
+            document.getElementById('empresa-cnpj').value = siteData.empresa?.cnpj || '';
+            document.getElementById('empresa-endereco').value = siteData.empresa?.endereco || '';
+            document.getElementById('empresa-slogan').value = siteData.empresa?.slogan || '';
+            document.getElementById('empresa-logo').value = siteData.empresa?.logo || '';
+            document.getElementById('empresa-siteUrl').value = siteData.empresa?.siteUrl || '';
+            updateLogoPreview();
+            
+            // Cores
+            if (siteData.cores) {
+                setupColorInput('primaria', siteData.cores.primaria);
+                setupColorInput('secundaria', siteData.cores.secundaria);
+                setupColorInput('texto', siteData.cores.texto);
+                setupColorInput('fundo', siteData.cores.fundo);
+                updateCoresPreview();
+            }
+            
+            // Redes Sociais
+            document.getElementById('redes-instagram').value = siteData.redesSociais?.instagram || '';
+            document.getElementById('redes-endereco').value = siteData.redesSociais?.endereco || '';
+            document.getElementById('redes-avaliacaoGoogle').value = siteData.redesSociais?.avaliacaoGoogle || '';
+            
+            // Listas
+            renderBanners();
+            renderVendedores();
+            renderCatalogos();
+        }
+        
+        // Setup color inputs
+        function setupColorInput(name, value) {
+            const colorInput = document.getElementById(`cores-${name}`);
+            const hexInput = document.getElementById(`cores-${name}-hex`);
+            
+            colorInput.value = value;
+            hexInput.value = value;
+            
+            colorInput.addEventListener('input', () => {
+                hexInput.value = colorInput.value;
+                updateCoresPreview();
+            });
+            
+            hexInput.addEventListener('input', () => {
+                if (/^#[0-9A-Fa-f]{6}$/.test(hexInput.value)) {
+                    colorInput.value = hexInput.value;
+                    updateCoresPreview();
+                }
+            });
+        }
+        
+        // Update cores preview
+        function updateCoresPreview() {
+            const preview = document.getElementById('cores-preview');
+            const primaria = document.getElementById('cores-primaria').value;
+            const secundaria = document.getElementById('cores-secundaria').value;
+            
+            preview.style.setProperty('--cor-primaria', primaria);
+            preview.style.setProperty('--cor-secundaria', secundaria);
+            preview.style.setProperty('--cor-texto', document.getElementById('cores-texto').value);
+            preview.style.setProperty('--cor-fundo', document.getElementById('cores-fundo').value);
+            preview.style.background = `linear-gradient(to bottom, ${secundaria}, ${primaria})`;
+        }
+        
+        // Update logo preview
+        function updateLogoPreview() {
+            const logoUrl = document.getElementById('empresa-logo').value;
+            const preview = document.getElementById('logo-preview');
+            preview.src = logoUrl || 'https://placehold.co/200x80/138c8a/ffffff?text=Logo';
+        }
+        
+        // Render Banners
+        function renderBanners() {
+            const container = document.getElementById('banners-list');
+            container.innerHTML = siteData.banners?.map((banner, index) => `
+                <div class="item-card p-4 rounded-xl fade-in">
+                    <div class="aspect-video bg-black/20 rounded-lg mb-3 overflow-hidden">
+                        <img src="${banner.imagem}" alt="${banner.titulo}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/300x150/138c8a/ffffff?text=${encodeURIComponent(banner.titulo)}'">
+                    </div>
+                    <input type="text" value="${banner.titulo}" onchange="updateBanner(${index}, 'titulo', this.value)" class="input-field w-full px-3 py-2 rounded-lg text-white text-sm mb-2" placeholder="Título">
+                    <input type="text" value="${banner.imagem}" onchange="updateBanner(${index}, 'imagem', this.value)" class="input-field w-full px-3 py-2 rounded-lg text-white text-sm mb-3" placeholder="URL da Imagem">
+                    <button onclick="removeBanner(${index})" class="text-red-400 hover:text-red-300 text-sm flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Remover
+                    </button>
+                </div>
+            `).join('') || '<p class="text-gray-400 col-span-full text-center py-8">Nenhum banner cadastrado</p>';
+        }
+        
+        // Render Vendedores
+        function renderVendedores() {
+            const container = document.getElementById('vendedores-list');
+            container.innerHTML = siteData.vendedores?.map((vendedor, index) => `
+                <div class="item-card p-4 rounded-xl fade-in">
+                    <div class="flex items-center gap-3 mb-4">
+                        <img src="${vendedor.foto}" alt="${vendedor.nome}" class="w-16 h-16 rounded-full object-cover border-2 border-teal-500" onerror="this.src='https://placehold.co/100x100/138c8a/ffffff?text=${encodeURIComponent(vendedor.nome?.charAt(0) || 'V')}'">
+                        <div class="flex-1">
+                            <input type="text" value="${vendedor.nome}" onchange="updateVendedor(${index}, 'nome', this.value)" class="input-field w-full px-3 py-2 rounded-lg text-white text-sm" placeholder="Nome">
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <input type="text" value="${vendedor.foto}" onchange="updateVendedor(${index}, 'foto', this.value)" class="input-field w-full px-3 py-2 rounded-lg text-white text-sm" placeholder="URL da Foto">
+                        <div class="flex gap-2">
+                            <span class="text-gray-400 text-xs w-20">WhatsApp:</span>
+                            <input type="text" value="${vendedor.whatsapp}" onchange="updateVendedor(${index}, 'whatsapp', this.value)" class="input-field flex-1 px-3 py-2 rounded-lg text-white text-sm" placeholder="5521999999999">
+                        </div>
+                        <div class="flex gap-2">
+                            <span class="text-gray-400 text-xs w-20">E-mail:</span>
+                            <input type="text" value="${vendedor.email}" onchange="updateVendedor(${index}, 'email', this.value)" class="input-field flex-1 px-3 py-2 rounded-lg text-white text-sm" placeholder="email@empresa.com">
+                        </div>
+                    </div>
+                    <button onclick="removeVendedor(${index})" class="text-red-400 hover:text-red-300 text-sm flex items-center gap-1 mt-3">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Remover
+                    </button>
+                </div>
+            `).join('') || '<p class="text-gray-400 col-span-full text-center py-8">Nenhum vendedor cadastrado</p>';
+        }
+        
+        // Render Catálogos
+        function renderCatalogos() {
+            const container = document.getElementById('catalogos-list');
+            container.innerHTML = siteData.catalogos?.map((catalogo, index) => `
+                <div class="item-card p-4 rounded-xl fade-in flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-lg bg-teal-500/20 flex items-center justify-center text-teal-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1 space-y-2">
+                        <input type="text" value="${catalogo.titulo}" onchange="updateCatalogo(${index}, 'titulo', this.value)" class="input-field w-full px-3 py-2 rounded-lg text-white text-sm" placeholder="Nome do Catálogo">
+                        <input type="text" value="${catalogo.url}" onchange="updateCatalogo(${index}, 'url', this.value)" class="input-field w-full px-3 py-2 rounded-lg text-white text-sm" placeholder="URL do Catálogo">
+                    </div>
+                    <button onclick="removeCatalogo(${index})" class="text-red-400 hover:text-red-300 p-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </div>
+            `).join('') || '<p class="text-gray-400 col-span-full text-center py-8">Nenhum catálogo cadastrado</p>';
+        }
+        
+        // Add functions
+        function addBanner() {
+            if (!siteData.banners) siteData.banners = [];
+            siteData.banners.push({
+                id: Date.now(),
+                titulo: 'Novo Banner',
+                imagem: ''
+            });
+            renderBanners();
+        }
+        
+        function addVendedor() {
+            if (!siteData.vendedores) siteData.vendedores = [];
+            siteData.vendedores.push({
+                id: Date.now(),
+                nome: 'Novo Vendedor',
+                foto: '',
+                whatsapp: '',
+                email: ''
+            });
+            renderVendedores();
+        }
+        
+        function addCatalogo() {
+            if (!siteData.catalogos) siteData.catalogos = [];
+            siteData.catalogos.push({
+                id: Date.now(),
+                titulo: 'Novo Catálogo',
+                url: '#'
+            });
+            renderCatalogos();
+        }
+        
+        // Update functions
+        function updateBanner(index, field, value) {
+            siteData.banners[index][field] = value;
+            if (field === 'imagem') renderBanners();
+        }
+        
+        function updateVendedor(index, field, value) {
+            siteData.vendedores[index][field] = value;
+            if (field === 'foto') renderVendedores();
+        }
+        
+        function updateCatalogo(index, field, value) {
+            siteData.catalogos[index][field] = value;
+        }
+        
+        // Remove functions
+        function removeBanner(index) {
+            if (confirm('Remover este banner?')) {
+                siteData.banners.splice(index, 1);
+                renderBanners();
+            }
+        }
+        
+        function removeVendedor(index) {
+            if (confirm('Remover este vendedor?')) {
+                siteData.vendedores.splice(index, 1);
+                renderVendedores();
+            }
+        }
+        
+        function removeCatalogo(index) {
+            if (confirm('Remover este catálogo?')) {
+                siteData.catalogos.splice(index, 1);
+                renderCatalogos();
+            }
+        }
+        
+        // Collect form data
+        function collectFormData() {
+            siteData.empresa = {
+                nome: document.getElementById('empresa-nome').value,
+                cnpj: document.getElementById('empresa-cnpj').value,
+                endereco: document.getElementById('empresa-endereco').value,
+                slogan: document.getElementById('empresa-slogan').value,
+                logo: document.getElementById('empresa-logo').value,
+                siteUrl: document.getElementById('empresa-siteUrl').value
+            };
+            
+            siteData.cores = {
+                primaria: document.getElementById('cores-primaria').value,
+                secundaria: document.getElementById('cores-secundaria').value,
+                texto: document.getElementById('cores-texto').value,
+                fundo: document.getElementById('cores-fundo').value
+            };
+            
+            siteData.redesSociais = {
+                instagram: document.getElementById('redes-instagram').value,
+                endereco: document.getElementById('redes-endereco').value,
+                avaliacaoGoogle: document.getElementById('redes-avaliacaoGoogle').value
+            };
+        }
+        
+        // Save data
+        function saveData() {
+            collectFormData();
+            localStorage.setItem('decato_site_data', JSON.stringify(siteData));
+            showToast('Alterações salvas com sucesso!', 'success');
+        }
+        
+        // Export data
+        function exportData() {
+            collectFormData();
+            const dataStr = JSON.stringify(siteData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Arquivo data.json exportado!', 'success');
+        }
+        
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+            toast.className = `toast ${bgColor} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2`;
+            toast.innerHTML = `
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    ${type === 'success' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>' : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>'}
+                </svg>
+                ${message}
+            `;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        // Tab navigation
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+                
+                btn.classList.add('active');
+                const tabId = `tab-${btn.dataset.tab}`;
+                const tabContent = document.getElementById(tabId);
+                tabContent.classList.remove('hidden');
+                tabContent.classList.add('fade-in');
+            });
+        });
+        
+        // Logo preview update on input
+        document.getElementById('empresa-logo')?.addEventListener('input', updateLogoPreview);
+        
+        // Initialize
+        loadData();
+    </script>
+</body>
+</html>
+

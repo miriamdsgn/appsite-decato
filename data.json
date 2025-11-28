@@ -1,0 +1,99 @@
+{
+  "empresa": {
+    "nome": "DECATO COMERCIO ATACADISTA EIRELI",
+    "cnpj": "39.251.981/0001-85",
+    "endereco": "Rua Montevidéu, Rio de Janeiro - RJ, 21020-290",
+    "slogan": "A solução completa para o seu negócio",
+    "logo": "https://images.tcdn.com.br/img/img_prod/932868/1611352600_logodecato.svg",
+    "siteUrl": "https://www.decato.com.br"
+  },
+  "cores": {
+    "primaria": "#138c8a",
+    "secundaria": "#4de6ed",
+    "texto": "#303a3b",
+    "fundo": "#E0F2F1"
+  },
+  "banners": [
+    {
+      "id": 1,
+      "titulo": "Papelaria",
+      "imagem": "papelaria.png"
+    },
+    {
+      "id": 2,
+      "titulo": "Limpeza",
+      "imagem": "Limpeza.png"
+    },
+    {
+      "id": 3,
+      "titulo": "EPI",
+      "imagem": "EPI.png"
+    },
+    {
+      "id": 4,
+      "titulo": "Coffee Break",
+      "imagem": "Coffee-Break.png"
+    },
+    {
+      "id": 5,
+      "titulo": "Iluminação",
+      "imagem": "Iluminação.png"
+    },
+    {
+      "id": 6,
+      "titulo": "Informática",
+      "imagem": "Informática.png"
+    }
+  ],
+  "vendedores": [
+    {
+      "id": 1,
+      "nome": "Yanca Macena",
+      "foto": "vendedores/Yanca-Macena.jpg",
+      "whatsapp": "5521990225516",
+      "email": "vendas05@decato.com.br"
+    },
+    {
+      "id": 2,
+      "nome": "Fernanda Rodrigues",
+      "foto": "vendedores/Fernanda-Rodrigues.jpg",
+      "whatsapp": "5521973363156",
+      "email": "vendas@decato.com.br"
+    },
+    {
+      "id": 3,
+      "nome": "Carlos Mattos",
+      "foto": "vendedores/Carlos-Mattos.jpg",
+      "whatsapp": "5521968307193",
+      "email": "vendas07@decato.com.br"
+    }
+  ],
+  "catalogos": [
+    {
+      "id": 1,
+      "titulo": "Papelaria",
+      "url": "#"
+    },
+    {
+      "id": 2,
+      "titulo": "Limpeza",
+      "url": "#"
+    },
+    {
+      "id": 3,
+      "titulo": "EPI",
+      "url": "#"
+    },
+    {
+      "id": 4,
+      "titulo": "Outros",
+      "url": "#"
+    }
+  ],
+  "redesSociais": {
+    "instagram": "#",
+    "endereco": "#",
+    "avaliacaoGoogle": "#"
+  }
+}
+
