@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload de Imagens - Decato</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="vercel-service.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+        }
+        .upload-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        .upload-zone.dragover {
+            border-color: #14b8a6;
+            background: rgba(20, 184, 166, 0.1);
+        }
+    </style>
+</head>
+<body class="text-white p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-2">Upload de Imagens para Vercel Blob</h1>
+        <p class="text-gray-400 mb-8">Faça upload de todas as imagens do projeto de uma vez</p>
+
+        <!-- Status -->
+        <div id="status" class="mb-6 p-4 bg-white/5 rounded-lg">
+            <p class="text-sm">Aguardando upload...</p>
+        </div>
+
+        <!-- Upload Zone -->
+        <div class="upload-zone p-8 rounded-xl text-center mb-6 cursor-pointer" 
+             id="uploadZone"
+             onclick="document.getElementById('fileInput').click()">
+            <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+            <p class="text-xl mb-2">Clique ou arraste imagens aqui</p>
+            <p class="text-sm text-gray-400">PNG, JPG, SVG até 4.5MB cada</p>
+            <input type="file" id="fileInput" multiple accept="image/*" class="hidden" onchange="handleFiles(this.files)">
+        </div>
+
+        <!-- Lista de Imagens -->
+        <div id="imageList" class="space-y-4"></div>
+
+        <!-- Botão Salvar URLs -->
+        <div class="mt-8 text-center">
+            <button onclick="exportUrls()" class="px-6 py-3 bg-teal-500 hover:bg-teal-600 rounded-lg font-semibold">
+                Exportar URLs para data.json
+            </button>
+        </div>
+
+        <!-- Resultado -->
+        <div id="result" class="mt-6 hidden"></div>
+    </div>
+
+    <script>
+        const uploadedImages = {};
+        let uploadCount = 0;
+        let totalFiles = 0;
+
+        // Drag and drop
+        const uploadZone = document.getElementById('uploadZone');
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        async function handleFiles(files) {
+            totalFiles = files.length;
+            uploadCount = 0;
+            uploadedImages = {};
+            
+            updateStatus(`Processando ${totalFiles} imagem(ns)...`);
+
+            for (let file of files) {
+                await uploadImage(file);
+            }
+
+            updateStatus(`✅ ${uploadCount} de ${totalFiles} imagem(ns) enviadas!`);
+        }
+
+        async function uploadImage(file) {
+            const listItem = document.createElement('div');
+            listItem.className = 'p-4 bg-white/5 rounded-lg flex items-center gap-4';
+            listItem.innerHTML = `
+                <div class="flex-1">
+                    <p class="font-medium">${file.name}</p>
+                    <p class="text-sm text-gray-400">Enviando...</p>
+                </div>
+                <div class="w-8 h-8 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+            `;
+            document.getElementById('imageList').appendChild(listItem);
+
+            try {
+                // Determinar pasta baseado no nome do arquivo
+                let folder = 'images';
+                if (file.name.includes('Logo')) folder = 'logos';
+                else if (file.name.includes('Yanca') || file.name.includes('Fernanda') || file.name.includes('Carlos')) folder = 'vendedores';
+                else if (['papelaria', 'Limpeza', 'EPI', 'Coffee', 'Iluminação', 'Informática'].some(n => file.name.includes(n))) folder = 'banners';
+
+                const result = await VercelService.uploadImage(file, folder);
+                
+                uploadedImages[file.name] = {
+                    url: result.url,
+                    folder: folder,
+                    originalName: file.name
+                };
+
+                listItem.innerHTML = `
+                    <div class="flex-1">
+                        <p class="font-medium text-green-400">${file.name}</p>
+                        <p class="text-xs text-gray-400 break-all">${result.url}</p>
+                    </div>
+                    <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                `;
+                listItem.classList.remove('bg-white/5');
+                listItem.classList.add('bg-green-500/10');
+
+                uploadCount++;
+            } catch (error) {
+                listItem.innerHTML = `
+                    <div class="flex-1">
+                        <p class="font-medium text-red-400">${file.name}</p>
+                        <p class="text-xs text-red-400">Erro: ${error.message}</p>
+                    </div>
+                    <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                `;
+                listItem.classList.remove('bg-white/5');
+                listItem.classList.add('bg-red-500/10');
+            }
+        }
+
+        function updateStatus(message) {
+            document.getElementById('status').innerHTML = `<p class="text-sm">${message}</p>`;
+        }
+
+        function exportUrls() {
+            if (Object.keys(uploadedImages).length === 0) {
+                alert('Nenhuma imagem foi enviada ainda!');
+                return;
+            }
+
+            // Criar JSON atualizado
+            const data = {
+                banners: [],
+                vendedores: [],
+                empresa: {
+                    logo: uploadedImages['Logo Decato.png']?.url || 'https://images.tcdn.com.br/img/img_prod/932868/1611352600_logodecato.svg'
+                }
+            };
+
+            // Mapear banners
+            const bannerMap = {
+                'papelaria.png': 'Papelaria',
+                'Limpeza.png': 'Limpeza',
+                'EPI.png': 'EPI',
+                'Coffee-Break.png': 'Coffee Break',
+                'Iluminação.png': 'Iluminação',
+                'Informática.png': 'Informática'
+            };
+
+            Object.keys(bannerMap).forEach(fileName => {
+                if (uploadedImages[fileName]) {
+                    data.banners.push({
+                        titulo: bannerMap[fileName],
+                        imagem: uploadedImages[fileName].url
+                    });
+                }
+            });
+
+            // Mapear vendedores
+            const vendedorMap = {
+                'Yanca-Macena.jpg': { nome: 'Yanca Macena', whatsapp: '5521990225516', email: 'vendas05@decato.com.br' },
+                'Fernanda-Rodrigues.jpg': { nome: 'Fernanda Rodrigues', whatsapp: '5521973363156', email: 'vendas@decato.com.br' },
+                'Carlos-Mattos.jpg': { nome: 'Carlos Mattos', whatsapp: '5521968307193', email: 'vendas07@decato.com.br' }
+            };
+
+            Object.keys(vendedorMap).forEach(fileName => {
+                if (uploadedImages[fileName]) {
+                    data.vendedores.push({
+                        ...vendedorMap[fileName],
+                        foto: uploadedImages[fileName].url
+                    });
+                }
+            });
+
+            // Mostrar resultado
+            const resultDiv = document.getElementById('result');
+            resultDiv.classList.remove('hidden');
+            resultDiv.innerHTML = `
+                <div class="p-6 bg-white/5 rounded-xl">
+                    <h3 class="text-xl font-bold mb-4">URLs das Imagens:</h3>
+                    <pre class="bg-black/20 p-4 rounded-lg overflow-auto text-sm">${JSON.stringify(data, null, 2)}</pre>
+                    <button onclick="copyToClipboard()" class="mt-4 px-4 py-2 bg-teal-500 hover:bg-teal-600 rounded-lg">
+                        Copiar JSON
+                    </button>
+                    <p class="mt-4 text-sm text-gray-400">
+                        Cole este JSON no painel admin ou atualize o data.json manualmente
+                    </p>
+                </div>
+            `;
+
+            window.exportedData = data;
+        }
+
+        function copyToClipboard() {
+            const json = JSON.stringify(window.exportedData, null, 2);
+            navigator.clipboard.writeText(json).then(() => {
+                alert('JSON copiado! Cole no painel admin.');
+            });
+        }
+    </script>
+</body>
+</html>
+
